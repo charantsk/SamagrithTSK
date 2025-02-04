@@ -7,12 +7,11 @@
     <title>Create Resource</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
-            padding-top: 80px;
+            padding-top: 100px;
         }
 
         .navbar {
@@ -30,205 +29,106 @@
             margin: 0 15px;
         }
 
-        .navbar a:hover {
-            color: #f0f0f0;
-        }
-
         .navbar .logo img {
             width: 80px;
             height: 80px;
-        }
-
-        .form-container {
-            max-width: 900px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-container h2 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .form-container input,
-        .form-container textarea,
-        .form-container select {
-            width: 100%;
-            padding: 10px;
-            margin: 12px 0;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-        }
-
-        .form-container button {
-            padding: 12px 25px;
-            background-color: #005c38;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .form-container button:hover {
-            background-color: #004a2d;
-        }
-
-        @media (max-width: 768px) {
-            .form-container {
-                padding: 15px;
-            }
-
-            .form-row {
-                flex-direction: column;
-            }
-        }
-
-        .form-row label {
-            margin-bottom: 5px;
-        }
-
-        .form-row {
-            margin-bottom: 15px;
-        }
-
-        .submit-btn-container {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .submit-btn-container button {
-            width: 40%;
         }
     </style>
 </head>
 
 <body>
-
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <div class="logo d-flex align-items-center">
-                <img src="./static/images/samagrith-logo-in-nav-bar-p-500.png" alt="Logo">
-                <h1 class="text-white ms-2">SAMAGRITH</h1>
+                <img src="./static/images/samagrith-logo-in-nav-bar-p-500.png" width="120" sizes="(max-width: 479px) 100vw, 90px"
+                    srcset="./static/images/samagrith-logo-in-nav-bar-p-500.png 500w, ./static/images/samagrith-logo-in-nav-bar-p-500.png 1080w" alt=""
+                    class="logo-image">
             </div>
         </div>
     </nav>
 
-    <div class="form-container">
-        <h2>Create Resource</h2>
+    <div class="container mt-4">
+        <h2>Create Resource</h2><br>
         <form id="resource-form" method="POST" enctype="multipart/form-data">
-            <div class="row form-row">
+            <div class="row">
                 <div class="col-md-6">
                     <label for="name">Name</label>
-                    <input type="text" id="name" name="name" required>
+                    <input type="text" id="name" name="name" class="form-control" required>
                 </div>
                 <div class="col-md-6">
                     <label for="slug">Slug</label>
-                    <input type="text" id="slug" name="slug" required>
+                    <input type="text" id="slug" name="slug" class="form-control" required>
                 </div>
             </div>
 
-            <div class="row form-row">
+            <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="post_summary">Post Summary</label>
-                    <textarea id="post_summary" name="post_summary" rows="3"></textarea>
+                    <textarea id="post_summary" name="post_summary" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="col-md-6">
                     <label for="post_body">Post Body</label>
-                    <textarea id="post_body" name="post_body" rows="3"></textarea>
+                    <textarea id="post_body" name="post_body" class="form-control" rows="3"></textarea>
                 </div>
             </div>
 
-            <div class="row form-row">
+            <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="main_image">Main Image</label>
-                    <input type="file" id="main_image" name="main_image" accept="image/*">
+                    <input type="file" id="main_image" name="main_image" class="form-control" accept="image/*">
                 </div>
                 <div class="col-md-6">
                     <label for="thumbnail_image">Thumbnail Image</label>
-                    <input type="file" id="thumbnail_image" name="thumbnail_image" accept="image/*">
+                    <input type="file" id="thumbnail_image" name="thumbnail_image" class="form-control"
+                        accept="image/*">
                 </div>
             </div>
 
-            <div class="row form-row">
+            <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="color">Color</label>
-                    <input type="text" id="color" name="color">
+                    <input type="text" id="color" name="color" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label for="service_category">Service Category</label>
-                    <input type="text" id="service_category" name="service_category">
+                    <input type="text" id="service_category" name="service_category" class="form-control">
                 </div>
             </div>
 
-            <div class="row form-row">
+            <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="normal_category">Normal Category</label>
-                    <input type="text" id="normal_category" name="normal_category">
+                    <input type="text" id="normal_category" name="normal_category" class="form-control">
                 </div>
             </div>
 
-            <div class="submit-btn-container">
-                <button type="button" onclick="submitForm()">Create Resource</button>
+            <div class="mt-4 text-center">
+                <button type="button" class="btn btn-success" onclick="submitForm()">Create Resource</button>
             </div>
         </form>
     </div>
 
     <script>
-        function encodeImage(file, callback) {
-            const reader = new FileReader();
-            reader.onloadend = function () {
-                callback(reader.result.split(',')[1]);
-            };
-            reader.readAsDataURL(file);
-        }
-
         function submitForm() {
             const form = document.getElementById('resource-form');
             const formData = new FormData(form);
 
-            const mainImage = document.getElementById('main_image').files[0];
-            const thumbnailImage = document.getElementById('thumbnail_image').files[0];
-
-            encodeImage(mainImage, (encodedMainImage) => {
-                encodeImage(thumbnailImage, (encodedThumbnailImage) => {
-                    const data = {
-                        name: formData.get('name'),
-                        slug: formData.get('slug'),
-                        post_body: formData.get('post_body'),
-                        post_summary: formData.get('post_summary'),
-                        main_image: encodedMainImage,
-                        thumbnail_image: encodedThumbnailImage,
-                        color: formData.get('color'),
-                        service_category: formData.get('service_category'),
-                        normal_category: formData.get('normal_category')
-                    };
-
-                    fetch('http://127.0.0.1:5000/api/resources', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.message === 'Resource created successfully') {
-                                alert('Resource created successfully!');
-                                form.reset();
-                            } else {
-                                alert('Error: ' + data.error);
-                            }
-                        })
-                        .catch(error => {
-                            alert('Error: ' + error.message);
-                        });
+            fetch('http://127.0.0.1:5000/api/resources', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Resource created successfully') {
+                        alert('Resource created successfully!');
+                        form.reset();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
                 });
-            });
         }
     </script>
 
