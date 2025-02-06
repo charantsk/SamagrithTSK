@@ -19,21 +19,6 @@ Samagrith is a web application designed to manage webpage resources and a jobs s
 - CRUD (Create, Read, Update, Delete) operations for managing resources and job listings.
 - SEO-friendly URLs with **slug-based navigation**.
 
-### Search & Filters
-- Search functionality for resources and jobs.
-- Filtering options based on job type (full-time, part-time, remote), experience level, and industry.
-
-### Security & Authentication
-- User authentication for content management.
-- Role-based access control (Admin/Editor) for managing resources and job listings.
-
-## Technology Stack
-- **Backend:** Flask (Python)
-- **Database:** PostgreSQL / SQLite
-- **Frontend:** HTML, CSS, JavaScript
-- **Authentication:** Flask-Login / JWT-based authentication
-- **Deployment:** Docker, GitHub Pages / Netlify / Vercel
-
 Resource Creation -
 ![image](https://github.com/user-attachments/assets/dcbe68f2-8fd4-45e8-9775-f841062fc3cc)
 
