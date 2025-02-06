@@ -23,136 +23,17 @@
             color: white;
         }
 
-        .navbar .links a:hover {
-            color: #f0f0f0;
-        }
-
         .table th,
         .table td {
             text-align: center;
         }
-
-        .btn-warning {
-            background-color: #ffc107;
-            border: none;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            border: none;
-        }
-
-        .btn-primary {
-            background-color: #005c38;
-            border: none;
-        }
-
-        .modal-header {
-            background-color: #005c38;
-            color: white;
-        }
     </style>
-
-    <script>
-        async function fetchResources() {
-            try {
-                const response = await fetch('http://127.0.0.1:5000/api/resources');
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-                const data = await response.json();
-                console.log("Fetched data:", data);
-
-                const tableBody = document.getElementById('resourceTableBody');
-                tableBody.innerHTML = '';
-
-                data.resources.forEach(resource => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${resource.name}</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" onclick="editResource(${resource.id}, '${resource.name}', '${resource.slug}', '${resource.post_body}', '${resource.post_summary}', '${resource.main_image}', '${resource.thumbnail_image}', ${resource.featured}, '${resource.color}', ${resource.col_span}, '${resource.service_category}', '${resource.normal_category}', '${resource.cms_link}')">Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteResource('${resource.name}')">Delete</button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error("Error fetching resources:", error);
-            }
-        }
-
-        async function deleteResource(name) {
-            if (!confirm("Are you sure you want to delete this resource?")) return;
-
-            // Send DELETE request with the resource name as a query parameter
-            const response = await fetch(`http://127.0.0.1:5000/api/resources?name=${encodeURIComponent(name)}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                fetchResources();  // Refresh the resource list after successful deletion
-            } else {
-                console.error("Error deleting resource:", await response.json());
-            }
-        }
-
-        function editResource(id, name, slug, post_body, post_summary, main_image, thumbnail_image, featured, color, col_span, service_category, normal_category, cms_link) {
-            document.getElementById('editId').value = id;
-            document.getElementById('editName').value = name;
-            document.getElementById('editSlug').value = slug;
-            document.getElementById('editPostBody').value = post_body;
-            document.getElementById('editPostSummary').value = post_summary;
-            document.getElementById('editMainImage').value = main_image;
-            document.getElementById('editThumbnailImage').value = thumbnail_image;
-            document.getElementById('editFeatured').checked = featured;
-            document.getElementById('editColor').value = color;
-            document.getElementById('editColSpan').value = col_span;
-            document.getElementById('editServiceCategory').value = service_category;
-            document.getElementById('editNormalCategory').value = normal_category;
-            document.getElementById('editCmsLink').value = cms_link;
-
-            // Show Bootstrap modal
-            var editModal = new bootstrap.Modal(document.getElementById('editModal'));
-            editModal.show();
-        }
-
-        async function updateResource(event) {
-            event.preventDefault();
-            const id = document.getElementById('editId').value;
-
-            const updatedData = {};
-            document.querySelectorAll("#editForm input, #editForm textarea").forEach(input => {
-                // Convert checkbox value to boolean (True if checked, False if not)
-                if (input.type === 'checkbox') {
-                    updatedData[input.id.replace('edit', '').toLowerCase()] = input.checked;
-                } else {
-                    updatedData[input.id.replace('edit', '').toLowerCase()] = input.value;
-                }
-            });
-
-            const response = await fetch(`http://127.0.0.1:5000/api/resources/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedData)
-            });
-
-            if (response.ok) {
-                var editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-                editModal.hide();
-                fetchResources();
-            } else {
-                console.error("Error updating resource:", await response.json());
-            }
-        }
-
-        window.onload = fetchResources;
-    </script>
 </head>
 
 <body class="bg-light">
     <!-- Navbar -->
     <div class="navbar d-flex justify-content-between align-items-center px-4 py-2">
-        <div class="logo d-flex align-items-center">
+        <div class="logo">
             <img src="./static/images/samagrith-logo-in-nav-bar-p-500.png" width="80" height="80" alt="Logo">
         </div>
     </div>
@@ -181,56 +62,66 @@
                 <div class="modal-body">
                     <form id="editForm" onsubmit="updateResource(event)">
                         <input type="hidden" id="editId">
-
+                        
                         <div class="mb-3">
                             <label class="form-label">Name</label>
                             <input type="text" id="editName" class="form-control" required>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Slug</label>
-                            <input type="text" id="editSlug" class="form-control">
+                            <input type="text" id="editSlug" class="form-control" required>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Post Body</label>
                             <textarea id="editPostBody" class="form-control"></textarea>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Post Summary</label>
-                            <input type="text" id="editPostSummary" class="form-control">
+                            <textarea id="editPostSummary" class="form-control"></textarea>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Main Image</label>
                             <input type="text" id="editMainImage" class="form-control">
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Thumbnail Image</label>
                             <input type="text" id="editThumbnailImage" class="form-control">
                         </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" id="editFeatured" class="form-check-input">
-                            <label class="form-check-label">Featured</label>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Featured</label>
+                            <input type="checkbox" id="editFeatured">
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Color</label>
                             <input type="text" id="editColor" class="form-control">
                         </div>
+                        
                         <div class="mb-3">
-                            <label class="form-label">Col Span</label>
+                            <label class="form-label">Column Span</label>
                             <input type="number" id="editColSpan" class="form-control">
                         </div>
+                        
                         <div class="mb-3">
-                            <label class="form-label">Service Category</label>
-                            <input type="text" id="editServiceCategory" class="form-control">
+                            <label class="form-label">Topic</label>
+                            <input type="text" id="editTopic" class="form-control">
                         </div>
+                        
                         <div class="mb-3">
-                            <label class="form-label">Normal Category</label>
-                            <input type="text" id="editNormalCategory" class="form-control">
+                            <label class="form-label">Field Type</label>
+                            <input type="text" id="editFieldType" class="form-control">
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">CMS Link</label>
                             <input type="text" id="editCmsLink" class="form-control">
                         </div>
-
                         <button type="submit" class="btn btn-primary w-100">Update</button>
                     </form>
                 </div>
@@ -240,6 +131,103 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        async function fetchResources() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/resources');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+
+                const tableBody = document.getElementById('resourceTableBody');
+                tableBody.innerHTML = '';
+
+                data.resources.forEach(resource => {
+                    const row = document.createElement('tr');
+                    const truncatedPostBody = resource.post_body.length > 100 ? resource.post_body.substring(0, 100) + '...' : resource.post_body;
+
+                    row.innerHTML = `
+                        <td>${resource.name || 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editResource(${resource.id}, '${resource.name.replace(/'/g, "\'")}', '${resource.slug.replace(/'/g, "\'")}', '${truncatedPostBody.replace(/'/g, "\'")}', '${resource.post_summary.replace(/'/g, "\'")}', '${resource.main_image.replace(/'/g, "\'")}', '${resource.thumbnail_image.replace(/'/g, "\'")}', ${resource.featured}, '${resource.color.replace(/'/g, "\'")}', ${resource.col_span}, '${resource.topic.replace(/'/g, "\'")}', '${resource.field_type.replace(/'/g, "\'")}', '${resource.cms_link.replace(/'/g, "\'")}')">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteResource('${resource.name}')">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error fetching resources:", error);
+            }
+        }
+
+        function editResource(id, name, slug, post_body, post_summary, main_image, thumbnail_image, featured, color, col_span, topic, field_type, cms_link) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = name;
+            document.getElementById('editSlug').value = slug;
+            document.getElementById('editPostBody').value = post_body;
+            document.getElementById('editPostSummary').value = post_summary;
+            document.getElementById('editMainImage').value = main_image;
+            document.getElementById('editThumbnailImage').value = thumbnail_image;
+            document.getElementById('editFeatured').checked = featured;
+            document.getElementById('editColor').value = color;
+            document.getElementById('editColSpan').value = col_span;
+            document.getElementById('editTopic').value = topic;
+            document.getElementById('editFieldType').value = field_type;
+            document.getElementById('editCmsLink').value = cms_link;
+
+            var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        }
+
+        async function updateResource(event) {
+            event.preventDefault();
+            const id = document.getElementById('editId').value;
+            const updatedResource = {
+                name: document.getElementById('editName').value,
+                slug: document.getElementById('editSlug').value,
+                post_body: document.getElementById('editPostBody').value,
+                post_summary: document.getElementById('editPostSummary').value,
+                main_image: document.getElementById('editMainImage').value,
+                thumbnail_image: document.getElementById('editThumbnailImage').value,
+                featured: document.getElementById('editFeatured').checked,
+                color: document.getElementById('editColor').value,
+                col_span: document.getElementById('editColSpan').value,
+                topic: document.getElementById('editTopic').value,
+                field_type: document.getElementById('editFieldType').value,
+                cms_link: document.getElementById('editCmsLink').value
+            };
+
+            const response = await fetch(`http://127.0.0.1:5000/api/resources/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedResource)
+            });
+
+            if (response.ok) {
+                var editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                editModal.hide();
+                fetchResources();
+            } else {
+                console.error("Error updating resource:", await response.json());
+            }
+        }
+
+        async function deleteResource(name) {
+            if (!confirm("Are you sure you want to delete this resource?")) return;
+
+            const response = await fetch(`http://127.0.0.1:5000/api/resources?name=${encodeURIComponent(name)}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                fetchResources();
+            } else {
+                console.error("Error deleting resource:", await response.json());
+            }
+        }
+
+        window.onload = fetchResources;
+    </script>
 </body>
 
 </html>

@@ -35,10 +35,10 @@ class Resource(db.Model):
     featured = db.Column(db.Boolean, default=False)
     color = db.Column(db.String(50))
     col_span = db.Column(db.Integer, default=1)
-    service_category = db.Column(db.String(200))
-    normal_category = db.Column(db.String(200))
+    topic = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     cms_link = db.Column(db.String(500))
+    field_type = db.Column(db.String(500))
 
     def generate_cms_link(self):
         return f"/cms/resource/{self.slug}"
@@ -55,10 +55,10 @@ class Resource(db.Model):
             'featured': self.featured,
             'color': self.color,
             'col_span': self.col_span,
-            'service_category': self.service_category,
-            'normal_category': self.normal_category,
+            'topic': self.topic,
             'created_at': self.created_at.isoformat(),
-            'cms_link': self.cms_link
+            'cms_link': self.cms_link,
+            'field_type': self.field_type
 
         }
 
@@ -74,7 +74,7 @@ class Job(db.Model):
     cms_link = db.Column(db.String(500))
 
     def generate_cms_link(self):
-        return f"/cms/job/{self.id}"
+        return f"/cms/job/{str(self.id)}"
 
     def to_dict(self):
         return {
@@ -94,30 +94,34 @@ CMS_TEMPLATE = """
 <html>
 <head>
     <title>{{ item.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-            color: #333;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 100px;
         }
+
         .navbar {
-            background-color: #004d00;
-            color: #fff;
+            background-color: #005c38;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .navbar a {
             color: #fff;
             text-decoration: none;
-            margin: 0 10px;
+            margin: 0 15px;
         }
-        .navbar a:hover {
-            text-decoration: underline;
-        }
+
         .content {
             max-width: 100%;
             margin: 20px;
@@ -126,83 +130,82 @@ CMS_TEMPLATE = """
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .header {
-            margin-bottom: 20px;
-            text-align: left;
-        }
+
         .header h1 {
-            color: #004d00;
+            color: #005c38;
             margin-bottom: 10px;
         }
+
         .metadata {
             color: #666;
             margin: 10px 0;
             font-size: 14px;
-            text-align: left;
         }
-        .metadata p {
-            margin: 5px 0;
-        }
+
         .image-container {
             display: flex;
-            justify-content: left;
             gap: 15px;
             flex-wrap: wrap;
             margin-top: 20px;
         }
+
         img {
             max-width: 100%;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .description {
             text-align: justify;
             margin-top: 20px;
         }
-
-        .logo {
-            display: flex;
-            gap:20px;
-        }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="logo">
-            <img src="{{ url_for('static', filename='images/samagrith-logo-in-nav-bar-p-500.png') }}" width="80" height="80" alt="Main Image">
-            <h1>SAMAGRITH</h1> 
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="logo d-flex align-items-center">
+                <img src="{{ url_for('static', filename='images/samagrith-logo-in-nav-bar-p-500.png') }}" width="80" height="80" alt="Main Image">
+            </div>
         </div>
-        <div class="links">
-            <a href="#">About Us</a>
-            <a href="#">Team</a>
-            <a href="#">Our Services</a>
-            <a href="#">Resources</a>
-            <a href="#">Engage with Us</a>
-        </div>
-    </div>
+    </nav>
     
-    <div class="content">
-        <div class="header">
-            <h1>{{ item.name }}</h1>
-        </div>
+    <div class="container mt-5">
+        <div class="content">
+            <div class="header">
+                <h1>{{ item.name }}</h1>
+            </div>
+            
+            {% if item_type == 'resource' %}
+                <div class="metadata">
+                    <p><strong>Topic:</strong> {{ item.topic }}</p>
+                    <p><strong>Created At:</strong> {{ item.created_at }}</p>
+                    <p><strong>Field Type:</strong> {{ item.field_type }}</p>
+                </div>
 
-        <div class="metadata">
-            <p><strong>Category:</strong> {{ item.service_category or item.normal_category }}</p>
-            <p><strong>Posted On:</strong> {{ item.post_date }}</p>
-        </div>
+                <div class="image-container">
+                    {% if item.main_image %}
+                        <img src="{{ url_for('static', filename='images/' + item.main_image) }}" alt="Main Image">
+                    {% endif %}
+                    {% if item.thumbnail_image %}
+                        <img src="{{ url_for('static', filename='images/' + item.thumbnail_image) }}" alt="Thumbnail">
+                    {% endif %}
+                </div>
 
-        <div class="image-container">
-            {% if item.main_image %}
-                <img src="{{ url_for('static', filename='images/' + item.main_image) }}" alt="Main Image">
+                <div class="description">
+                    <p>{{ item.post_summary }}</p>
+                    <div>{{ item.post_body | safe }}</div>
+                </div>
+            {% elif item_type == 'job' %}
+                <div class="metadata">
+                    <p><strong>Title:</strong> {{ item.title }}</p>
+                    <p><strong>Posted On:</strong> {{ item.created_at }}</p>
+                </div>
+                
+                <div class="description">
+                    <p>{{ item.description }}</p>
+                </div>
             {% endif %}
-            {% if item.thumbnail_image %}
-                <img src="{{ url_for('static', filename='images/' + item.thumbnail_image) }}" alt="Thumbnail">
-            {% endif %}
-        </div>
-
-        <div class="description">
-            <p>{{ item.post_summary }}</p>
-            <div>{{ item.post_body | safe }}</div>
         </div>
     </div>
 </body>
@@ -216,21 +219,21 @@ CMS_TEMPLATE = """
 def create_resource():
     try:
         data = request.json
-
         # Extract and decode the base64 image
         main_image_b64 = data.get('main_image')
+        print("Main Image :",main_image_b64)
         if not main_image_b64:
             return jsonify({'error': 'main_image is required'}), 400
 
-        print("Main Image :",main_image_b64[:10])
         # Decode base64 and save as an image
-        if main_image_b64.startswith("data:image/png;base64,"):
+        if main_image_b64.startswith("data:image/jpeg;base64,") or main_image_b64.startswith("data:image/png;base64,"):
             main_image_b64 = main_image_b64.split(",")[1] # Remove base64 prefix
         
         image_data = base64.b64decode(main_image_b64)
         image = Image.open(BytesIO(image_data))
 
         # Generate filenames
+        print("Field Type :",data.get('field_type'))
         filename = f"{data['slug']}.png"
         thumbnail_filename = f"{data['slug']}_thumb.png"
 
@@ -256,8 +259,8 @@ def create_resource():
             featured=data.get('featured', False),
             color=data.get('color'),
             col_span=data.get('col_span', 1),
-            service_category=data.get('service_category'),
-            normal_category=data.get('normal_category')
+            topic=data.get('topic'),
+            field_type=data.get('field_type')
         )
 
         new_resource.cms_link = "http://127.0.0.1:5000" + new_resource.generate_cms_link()
@@ -280,14 +283,13 @@ def create_job():
             description=data.get('description')
         )
 
-        new_job.cms_link = new_job.generate_cms_link()
         db.session.add(new_job)
+        db.session.commit()
+        new_job.cms_link = "http://127.0.0.1:5000" + new_job.generate_cms_link()
         db.session.commit()
         return jsonify({'message': 'Job created successfully', 'job': new_job.to_dict()}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-
-
 
 # Dynamic CMS Pages
 @app.route('/cms/<item_type>/<identifier>')
@@ -385,6 +387,30 @@ def delete_resource():
         return jsonify({'message': 'Resource deleted successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+@app.route('/api/jobs/<int:job_id>', methods=['PUT'])
+def update_job(job_id):
+    job = Job.query.get(job_id)
+    if not job:
+        return jsonify({'message': 'Job not found'}), 404
+    
+    data = request.get_json()
+    job.name = data.get('name', job.name)
+    job.title = data.get('title', job.title)
+    job.description = data.get('description', job.description)
+    
+    db.session.commit()
+    return jsonify({'message': 'Job updated successfully'})
+
+@app.route('/api/jobs/<int:job_id>', methods=['DELETE'])
+def delete_job(job_id):
+    job = Job.query.get(job_id)
+    if not job:
+        return jsonify({'message': 'Job not found'}), 404
+    
+    db.session.delete(job)
+    db.session.commit()
+    return jsonify({'message': 'Job deleted successfully'})
 
 
 if __name__ == '__main__':
