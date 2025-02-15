@@ -185,10 +185,10 @@ CMS_TEMPLATE = """
 
                 <div class="image-container">
                     {% if item.main_image %}
-                        <img src="{{ url_for('static', filename='images/' + item.main_image) }}" alt="Main Image">
+                        <img src="data:image/png;base64,{{ item.main_image }}" alt="Main Image">
                     {% endif %}
                     {% if item.thumbnail_image %}
-                        <img src="{{ url_for('static', filename='images/' + item.thumbnail_image) }}" alt="Thumbnail">
+                        <img src="data:image/png;base64,{{ item.thumbnail_image }}" alt="Thumbnail">
                     {% endif %}
                 </div>
 
@@ -237,43 +237,26 @@ def updatejob():
 def create_resource():
     try:
         data = request.json
-        # Extract and decode the base64 image
         main_image_b64 = data.get('main_image')
-        print("Main Image :",main_image_b64)
+        thumbnail_image_b64 = data.get('thumbnail_image')
+
         if not main_image_b64:
             return jsonify({'error': 'main_image is required'}), 400
 
-        # Decode base64 and save as an image
-        if main_image_b64.startswith("data:image/jpeg;base64,") or main_image_b64.startswith("data:image/png;base64,"):
-            main_image_b64 = main_image_b64.split(",")[1] # Remove base64 prefix
-        
-        image_data = base64.b64decode(main_image_b64)
-        image = Image.open(BytesIO(image_data))
+        # Remove base64 prefixes if present
+        if main_image_b64.startswith("data:image"):
+            main_image_b64 = main_image_b64.split(",")[1]
+        if thumbnail_image_b64 and thumbnail_image_b64.startswith("data:image"):
+            thumbnail_image_b64 = thumbnail_image_b64.split(",")[1]
 
-        # Generate filenames
-        print("Field Type :",data.get('field_type'))
-        filename = f"{data['slug']}.png"
-        thumbnail_filename = f"{data['slug']}_thumb.png"
-
-        # Define full paths
-        main_image_path = os.path.join(STATIC_FOLDER, filename)
-        thumbnail_path = os.path.join(STATIC_FOLDER, thumbnail_filename)
-
-        # Save the main image
-        image.save(main_image_path, format="PNG")
-        
-        # Create and save a thumbnail
-        image.thumbnail(THUMBNAIL_SIZE)
-        image.save(thumbnail_path, format="PNG")
-
-        # Store paths in the database
+        # Store the base64 strings in the database
         new_resource = Resource(
             name=data['name'],
             slug=data['slug'],
             post_body=data.get('post_body'),
             post_summary=data.get('post_summary'),
-            main_image=filename,  # Store relative path
-            thumbnail_image=thumbnail_filename,
+            main_image=main_image_b64,
+            thumbnail_image=thumbnail_image_b64,
             featured=data.get('featured', False),
             color=data.get('color'),
             col_span=data.get('col_span', 1),
@@ -281,11 +264,11 @@ def create_resource():
             field_type=data.get('field_type')
         )
 
-        new_resource.cms_link = "http://127.0.0.1:5000" + new_resource.generate_cms_link()
+        new_resource.cms_link = "https://dev.novamcaas.com:5008/" + new_resource.generate_cms_link()
         db.session.add(new_resource)
         db.session.commit()
 
-        return jsonify({'message': 'Resource created successfully'}), 201
+        return jsonify({'message': 'Resource created successfully', 'resource': new_resource.to_dict()}), 201
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
