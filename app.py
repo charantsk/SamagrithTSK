@@ -264,7 +264,7 @@ def create_resource():
             field_type=data.get('field_type')
         )
 
-        new_resource.cms_link = "https://dev.novamcaas.com:5008/" + new_resource.generate_cms_link()
+        new_resource.cms_link = "https://samagrithtsk.onrender.com/" + new_resource.generate_cms_link()
         db.session.add(new_resource)
         db.session.commit()
 
@@ -286,7 +286,7 @@ def create_job():
 
         db.session.add(new_job)
         db.session.commit()
-        new_job.cms_link = "http://127.0.0.1:5000" + new_job.generate_cms_link()
+        new_job.cms_link = "https://samagrithtsk.onrender.com/" + new_job.generate_cms_link()
         db.session.commit()
         return jsonify({'message': 'Job created successfully', 'job': new_job.to_dict()}), 201
     except Exception as e:
