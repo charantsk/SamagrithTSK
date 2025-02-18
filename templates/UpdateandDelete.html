@@ -216,7 +216,7 @@
                 cms_link: document.getElementById('editCmsLink').value
             };
 
-            const response = await fetch(`https://dev.novamcaas.com:5008/api/resources/${id}`, {
+            const response = await fetch(`https://samagrithtsk.onrender.com/api/resources/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedResource)
@@ -234,7 +234,7 @@
         async function deleteResource(name) {
             if (!confirm("Are you sure you want to delete this resource?")) return;
 
-            const response = await fetch(`https://dev.novamcaas.com:5008/api/resources?name=${encodeURIComponent(name)}`, {
+            const response = await fetch(`https://samagrithtsk.onrender.com/api/resources?name=${encodeURIComponent(name)}`, {
                 method: 'DELETE',
             });
 
@@ -253,7 +253,7 @@
         }
 
         document.getElementById("confirmDeleteBtn").addEventListener("click", async function () {
-            const response = await fetch(`https://dev.novamcaas.com:5008/api/resources?name=${encodeURIComponent(deleteResourceName)}`, {
+            const response = await fetch(`https://samagrithtsk.onrender.com/api/resources?name=${encodeURIComponent(deleteResourceName)}`, {
                 method: 'DELETE',
             });
 
