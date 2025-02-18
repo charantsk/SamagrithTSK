@@ -150,7 +150,7 @@
             const newTitle = document.getElementById('updateTitle').value;
             const newDescription = document.getElementById('updateDescription').value;
 
-            fetch(`https://dev.novamcaas.com:5008/api/jobs/${jobId}`, {
+            fetch(`https://samagrithtsk.onrender.com/api/jobs/${jobId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: newName, title: newTitle, description: newDescription })
@@ -164,7 +164,7 @@
 
         function deleteJob(jobId) {
             if (confirm("Are you sure you want to delete this job?")) {
-                fetch(`https://dev.novamcaas.com:5008/api/jobs/${jobId}`, {
+                fetch(`https://samagrithtsk.onrender.com/api/jobs/${jobId}`, {
                     method: 'DELETE'
                 })
                     .then(response => response.json())
