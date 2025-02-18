@@ -355,7 +355,7 @@ def update_resource(id):
         # Update only provided fields
         updatable_fields = {
             'name', 'slug', 'post_body', 'post_summary', 'main_image', 'thumbnail_image',
-            'featured', 'color', 'col_span', 'service_category', 'normal_category'
+            'featured', 'color', 'col_span', 'service_category', 'normal_category', 'topic'
         }
 
         for key, value in data.items():
