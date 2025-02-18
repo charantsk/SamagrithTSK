@@ -1,0 +1,44 @@
+name: flask-cms-api
+description: A simple CMS API built with Flask, SQLAlchemy, and SQLite, providing endpoints for resources and jobs.
+version: 1.0.0
+platform: python
+runtime: python3.8
+
+services:
+  - name: flask-cms-api
+    image: flask-cms-api:latest
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URI=sqlite:///database.db
+    ports:
+      - "5000:5000"
+    dependencies:
+      - name: flask-sqlalchemy
+        version: 2.5.1
+      - name: flask-cors
+        version: 3.1.1
+      - name: werkzeug
+        version: 2.0.2
+      - name: Pillow
+        version: 8.4.0
+    volumes:
+      - ./static:/app/static
+      - ./database.db:/app/database.db
+    command: python app.py
+
+  - name: flask-cms-api-db
+    image: nouchka/sqlite
+    environment:
+      - SQLITE_DB_PATH=/app/database.db
+    volumes:
+      - ./database.db:/app/database.db
+    ports:
+      - "5001:5001"
+    command: sqlite3
+
+resources:
+  - name: database
+    type: file
+    path: ./database.db
+    size: 50MB
