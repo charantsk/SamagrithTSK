@@ -179,7 +179,7 @@
 
         function confirmDeleteJob() {
             const jobId = document.getElementById('deleteJobId').value;
-            fetch(`https://dev.novamcaas.com:5008/api/jobs/${jobId}`, {
+            fetch(`https://samagrithtsk.onrender.com/api/jobs/${jobId}`, {
                 method: 'DELETE'
             })
                 .then(response => response.json())
