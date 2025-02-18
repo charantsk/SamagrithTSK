@@ -1,19 +1,27 @@
 name: flask-cms-api
-description: A simple CMS API built with Flask, SQLAlchemy, and SQLite, providing endpoints for resources and jobs.
 version: 1.0.0
+description: A Flask-based CMS API with resource and job management.
 platform: python
 runtime: python3.8
-
-services:
+components:
   - name: flask-cms-api
-    image: flask-cms-api:latest
+    type: docker
+    image: flask-cms-api:latest  # Use the built Docker image name
     environment:
-      - FLASK_APP=app.py
-      - FLASK_ENV=development
-      - DATABASE_URI=sqlite:///database.db
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      DATABASE_URI: sqlite:///database.db
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Exposing the Flask app on port 5000
+    volumes:
+      - name: static-volume
+        path: /app/static
+      - name: db-volume
+        path: /app/database.db
+
     dependencies:
+      - name: flask
+        version: 2.0.2
       - name: flask-sqlalchemy
         version: 2.5.1
       - name: flask-cors
@@ -22,23 +30,21 @@ services:
         version: 2.0.2
       - name: Pillow
         version: 8.4.0
-    volumes:
-      - ./static:/app/static
-      - ./database.db:/app/database.db
-    command: python app.py
 
-  - name: flask-cms-api-db
-    image: nouchka/sqlite
-    environment:
-      - SQLITE_DB_PATH=/app/database.db
-    volumes:
-      - ./database.db:/app/database.db
-    ports:
-      - "5001:5001"
-    command: sqlite3
+volumes:
+  static-volume:
+    type: persistent
+    size: 1Gi  # You can adjust the size depending on your needs
+  db-volume:
+    type: persistent
+    size: 2Gi  # Size for database persistence
 
 resources:
   - name: database
     type: file
     path: ./database.db
-    size: 50MB
+    size: 2Gi
+
+deployment:
+  replicas: 1
+  autoScale: false
