@@ -1,49 +1,55 @@
-name: flask-cms-api
-version: 1.0.0
-description: A Flask-based CMS API with resource and job management.
-platform: python
-runtime: python3.8
-components:
-  - name: flask-cms-api
-    type: docker
-    image: flask-cms-api:latest  # Use the built Docker image name
-    environment:
-      FLASK_APP: app.py
-      FLASK_ENV: development
-      DATABASE_URI: sqlite:///database.db
-    ports:
-      - "5000:5000"  # Exposing the Flask app on port 5000
-    volumes:
-      - name: static-volume
-        path: /app/static
-      - name: db-volume
-        path: /app/database.db
+# +required The configuration file schema version
+schemaVersion: 1.1
 
-    dependencies:
-      - name: flask
-        version: 2.0.2
-      - name: flask-sqlalchemy
-        version: 2.5.1
-      - name: flask-cors
-        version: 3.1.1
-      - name: werkzeug
-        version: 2.0.2
-      - name: Pillow
-        version: 8.4.0
+# +optional Incoming connection details for the component
+endpoints:
+  - name: flask-cms-api
+    displayName: Flask CMS API
+    service:
+      basePath: /api
+      port: 5000
+    type: REST
+    networkVisibilities: 
+      - Public
+      - Organization
+    # Optional, add schema if needed
+    schemaFilePath: openapi.yaml
+
+# +optional Outgoing connection details for the component.
+dependencies:
+  # +optional Defines the connection references from the Internal Marketplace.
+  connectionReferences:
+    - name: resource-db-connection
+      resourceRef: service:/DatabaseComponent/SQLDatabase/v1/xyz123/PUBLIC
+
+# +optional Defines runtime configurations
+configuration:
+  # +optional List of environment variables to be injected into the component.
+  env:
+    - name: FLASK_APP
+      value: app.py
+    - name: FLASK_ENV
+      value: development
+    - name: DATABASE_URI
+      value: sqlite:///database.db
+    - name: STATIC_FOLDER
+      value: /app/static/images
+    - name: THUMBNAIL_SIZE
+      value: "200,200"
 
 volumes:
-  static-volume:
+  - name: static-volume
     type: persistent
-    size: 1Gi  # You can adjust the size depending on your needs
-  db-volume:
+    size: 1Gi  # Adjust size as needed for static files
+  - name: db-volume
     type: persistent
-    size: 2Gi  # Size for database persistence
+    size: 2Gi  # Size for SQLite database
 
 resources:
   - name: database
     type: file
     path: ./database.db
-    size: 2Gi
+    size: 2Gi  # Size for the database file
 
 deployment:
   replicas: 1
