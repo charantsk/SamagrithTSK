@@ -154,7 +154,7 @@
     <script>
         async function fetchResources() {
             try {
-                const response = await fetch('https://dev.novamcaas.com:5008/api/resources');
+                const response = await fetch('https://samagrithtsk.onrender.com/api/resources');
                 if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
                 const data = await response.json();
 
