@@ -206,6 +206,16 @@ CMS_TEMPLATE = """
                     <p>{{ item.description }}</p>
                 </div>
             {% endif %}
+            {% if item.field_type == 'reports' %}
+            <div class="mt-3">
+                <a href="#" 
+                class="btn btn-success" download>Download</a>
+            </div>
+            {% elif item.field_type == 'media' %}
+                <div class="mt-3">
+                    <a href="#" class="btn btn-success" target="_blank">Link to Published Article</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </body>
