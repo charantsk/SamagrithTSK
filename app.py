@@ -374,7 +374,7 @@ def update_resource(id):
         # Update only provided fields
         updatable_fields = {
             'name', 'slug', 'post_body', 'post_summary', 'main_image', 'thumbnail_image',
-            'featured', 'color', 'col_span', 'service_category', 'normal_category', 'topic'
+            'featured', 'color', 'col_span', 'service_category', 'normal_category', 'topic', 'link'
         }
 
         for key, value in data.items():
@@ -382,7 +382,7 @@ def update_resource(id):
                 setattr(resource, key, value)
 
         # Regenerate CMS link if needed
-        resource.cms_link = resource.generate_cms_link()
+        resource.cms_link = "https://samagrithtsk.onrender.com/" + resource.generate_cms_link()
 
         db.session.commit()
         return jsonify({'message': 'Resource updated successfully', 'resource': resource.to_dict()}), 200
