@@ -39,6 +39,7 @@ class Resource(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     cms_link = db.Column(db.String(500))
     field_type = db.Column(db.String(500))
+    link = db.Column(db.String(500))
 
     def generate_cms_link(self):
         return f"/cms/resource/{self.slug}"
@@ -58,8 +59,8 @@ class Resource(db.Model):
             'topic': self.topic,
             'created_at': self.created_at.isoformat(),
             'cms_link': self.cms_link,
-            'field_type': self.field_type
-
+            'field_type': self.field_type,
+            'link': self.link
         }
 
 
@@ -206,15 +207,20 @@ CMS_TEMPLATE = """
             {% if item.field_type == 'reports' %}
             <div class="mt-3">
                 <a href="#" 
-                class="btn btn-success" download>Download</a>
+                class="btn btn-success" onclick="printPage()" download>Download</a>
             </div>
             {% elif item.field_type == 'media' %}
                 <div class="mt-3">
-                    <a href="#" class="btn btn-success" target="_blank">Link to Published Article</a>
+                    <a href={{ item.link }} class="btn btn-success" target="_blank">Link to Published Article</a>
                 </div>
             {% endif %}
         </div>
     </div>
+    <script>
+        function printPage() {
+            window.print(); // Triggers the print dialog
+        }
+    </script>
 </body>
 </html>
 """
@@ -255,7 +261,12 @@ def create_resource():
             main_image_b64 = main_image_b64.split(",")[1]
         if thumbnail_image_b64 and thumbnail_image_b64.startswith("data:image"):
             thumbnail_image_b64 = thumbnail_image_b64.split(",")[1]
-
+            
+        try:
+            link = data.get('link')
+        except:
+            link = None
+        
         # Store the base64 strings in the database
         new_resource = Resource(
             name=data['name'],
@@ -268,7 +279,8 @@ def create_resource():
             color=data.get('color'),
             col_span=data.get('col_span', 1),
             topic=data.get('topic'),
-            field_type=data.get('field_type')
+            field_type=data.get('field_type'),
+            link = link
         )
 
         new_resource.cms_link = "https://samagrithtsk.onrender.com/" + new_resource.generate_cms_link()
