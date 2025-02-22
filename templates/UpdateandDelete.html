@@ -173,7 +173,7 @@
                     row.innerHTML = `
                         <td>${resource.name || 'N/A'}</td>
                         <td>
-                            <button class="btn btn-warning btn-sm" onclick="editResource(${resource.id}, '${resource.name.replace(/'/g, "\'")}', '${resource.slug.replace(/'/g, "\'")}', '${encodeURIComponent(truncatedPostBody)}', '${resource.post_summary.replace(/'/g, "\'")}', '${resource.main_image.replace(/'/g, "\'")}', '${resource.thumbnail_image.replace(/'/g, "\'")}', ${resource.featured}, '${resource.color.replace(/'/g, "\'")}', ${resource.col_span}, '${resource.topic.replace(/'/g, "\'")}', '${resource.field_type.replace(/'/g, "\'")}', '${resource.cms_link.replace(/'/g, "\'")}'), '${resource.link.replace(/'/g, "\'")}')">Edit</button>
+                            <button class="btn btn-warning btn-sm" onclick="editResource(${resource.id}, '${resource.name.replace(/'/g, "\'")}', '${resource.slug.replace(/'/g, "\'")}', '${encodeURIComponent(truncatedPostBody)}', '${resource.post_summary.replace(/'/g, "\'")}', '${resource.main_image.replace(/'/g, "\'")}', '${resource.thumbnail_image.replace(/'/g, "\'")}', ${resource.featured}, '${resource.color.replace(/'/g, "\'")}', ${resource.col_span}, '${resource.topic.replace(/'/g, "\'")}', '${resource.field_type.replace(/'/g, "\'")}', '${resource.cms_link.replace(/'/g, "\'")}', '${resource.link.replace(/'/g, "\'")}')">Edit</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteResource('${resource.name}')">Delete</button>
                         </td>
                     `;
