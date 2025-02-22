@@ -111,11 +111,18 @@
             <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="field_type">Field Type</label>
-                    <select id="field_type" name="field_type" class="form-control" required>
+                    <select id="field_type" name="field_type" class="form-control" required onchange="toggleLinkField()">
                         <option value="diary">Diary</option>
                         <option value="media">Media</option>
                         <option value="reports">Reports</option>
                     </select>
+                </div>
+            </div>
+
+            <div class="row mt-3" id="link_field_container" style="display: none;">
+                <div class="col-md-6">
+                    <label for="link">Link</label>
+                    <input type="url" id="link" name="link" class="form-control">
                 </div>
             </div>
 
@@ -126,6 +133,18 @@
     </div>
 
     <script>
+        function toggleLinkField() {
+            const fieldType = document.getElementById('field_type').value;
+            const linkFieldContainer = document.getElementById('link_field_container');
+
+            if (fieldType === "media") {
+                linkFieldContainer.style.display = "block";
+            } else {
+                linkFieldContainer.style.display = "none";
+                document.getElementById('link').value = ""; // Clear value when hidden
+            }
+        }
+        
         // Function to convert image file to base64
         function convertToBase64(file, callback) {
             const reader = new FileReader();
