@@ -187,9 +187,6 @@ CMS_TEMPLATE = """
                     {% if item.main_image %}
                         <img src="data:image/png;base64,{{ item.main_image }}" alt="Main Image">
                     {% endif %}
-                    {% if item.thumbnail_image %}
-                        <img src="data:image/png;base64,{{ item.thumbnail_image }}" alt="Thumbnail">
-                    {% endif %}
                 </div>
 
                 <div class="description">
