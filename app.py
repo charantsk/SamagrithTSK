@@ -207,7 +207,7 @@ CMS_TEMPLATE = """
             {% if item.field_type == 'reports' %}
             <div class="mt-3">
                 <a href="#" 
-                class="btn btn-success" onclick="printPage()" download>Download</a>
+                class="btn btn-success" id="print" onclick="printPage()" download>Download</a>
             </div>
             {% elif item.field_type == 'media' %}
                 <div class="mt-3">
@@ -218,6 +218,7 @@ CMS_TEMPLATE = """
     </div>
     <script>
         function printPage() {
+            document.getElementById('print').style.display = "none";
             window.print(); // Triggers the print dialog
         }
     </script>
