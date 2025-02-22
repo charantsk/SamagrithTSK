@@ -136,6 +136,11 @@
                             <label class="form-label">Field Type</label>
                             <input type="text" id="editFieldType" class="form-control">
                         </div>
+
+                        <div class="mb-3" id="link" style="display: none;" >
+                            <label class="form-label">Media Link</label>
+                            <input type="text" id="editMediaLink" class="form-control">
+                        </div>
                         
                         <div class="mb-3">
                             <label class="form-label">CMS Link</label>
@@ -168,7 +173,7 @@
                     row.innerHTML = `
                         <td>${resource.name || 'N/A'}</td>
                         <td>
-                            <button class="btn btn-warning btn-sm" onclick="editResource(${resource.id}, '${resource.name.replace(/'/g, "\'")}', '${resource.slug.replace(/'/g, "\'")}', '${encodeURIComponent(truncatedPostBody)}', '${resource.post_summary.replace(/'/g, "\'")}', '${resource.main_image.replace(/'/g, "\'")}', '${resource.thumbnail_image.replace(/'/g, "\'")}', ${resource.featured}, '${resource.color.replace(/'/g, "\'")}', ${resource.col_span}, '${resource.topic.replace(/'/g, "\'")}', '${resource.field_type.replace(/'/g, "\'")}', '${resource.cms_link.replace(/'/g, "\'")}')">Edit</button>
+                            <button class="btn btn-warning btn-sm" onclick="editResource(${resource.id}, '${resource.name.replace(/'/g, "\'")}', '${resource.slug.replace(/'/g, "\'")}', '${encodeURIComponent(truncatedPostBody)}', '${resource.post_summary.replace(/'/g, "\'")}', '${resource.main_image.replace(/'/g, "\'")}', '${resource.thumbnail_image.replace(/'/g, "\'")}', ${resource.featured}, '${resource.color.replace(/'/g, "\'")}', ${resource.col_span}, '${resource.topic.replace(/'/g, "\'")}', '${resource.field_type.replace(/'/g, "\'")}', '${resource.cms_link.replace(/'/g, "\'")}'), '${resource.link.replace(/'/g, "\'")}')">Edit</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteResource('${resource.name}')">Delete</button>
                         </td>
                     `;
@@ -179,7 +184,7 @@
             }
         }
 
-        function editResource(id, name, slug, post_body, post_summary, main_image, thumbnail_image, featured, color, col_span, topic, field_type, cms_link) {
+        function editResource(id, name, slug, post_body, post_summary, main_image, thumbnail_image, featured, color, col_span, topic, field_type, cms_link, link) {
             document.getElementById('editId').value = id;
             document.getElementById('editName').value = name;
             document.getElementById('editSlug').value = slug;
@@ -193,7 +198,12 @@
             document.getElementById('editTopic').value = topic;
             document.getElementById('editFieldType').value = field_type;
             document.getElementById('editCmsLink').value = cms_link;
+            document.getElementById('editMediaLink').value = link;
 
+            if(field_type === "media") {
+                document.getElementById('link').style.display = "block"
+            }
+            
             var editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
         }
@@ -213,7 +223,8 @@
                 col_span: document.getElementById('editColSpan').value,
                 topic: document.getElementById('editTopic').value,
                 field_type: document.getElementById('editFieldType').value,
-                cms_link: document.getElementById('editCmsLink').value
+                cms_link: document.getElementById('editCmsLink').value,
+                link: document.getElementById('editMediaLink').value
             };
 
             const response = await fetch(`https://samagrithtsk.onrender.com/api/resources/${id}`, {
