@@ -111,7 +111,8 @@
             <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="field_type">Field Type</label>
-                    <select id="field_type" name="field_type" class="form-control" required onchange="toggleLinkField()">
+                    <select id="field_type" name="field_type" class="form-control" required
+                        onchange="toggleAdditionalFields()">
                         <option value="diary">Diary</option>
                         <option value="media">Media</option>
                         <option value="reports">Reports</option>
@@ -126,6 +127,15 @@
                 </div>
             </div>
 
+            <div class="row mt-3" id="report_file_container" style="display: none;">
+                <div class="col-md-6">
+                    <label for="report_file">Report File</label>
+                    <input type="file" id="report_file" name="report_file" class="form-control"
+                        accept=".pdf,.doc,.docx,.xlsx,.ppt,.pptx">
+                    <small class="form-text text-muted">Upload report documents (PDF, Word, Excel, PowerPoint)</small>
+                </div>
+            </div>
+
             <div class="mt-4 text-center">
                 <button type="button" class="btn btn-success" onclick="submitForm()">Create Resource</button>
             </div>
@@ -133,19 +143,24 @@
     </div>
 
     <script>
-        function toggleLinkField() {
+        function toggleAdditionalFields() {
             const fieldType = document.getElementById('field_type').value;
             const linkFieldContainer = document.getElementById('link_field_container');
+            const reportFileContainer = document.getElementById('report_file_container');
 
+            // Hide all first
+            linkFieldContainer.style.display = "none";
+            reportFileContainer.style.display = "none";
+
+            // Show appropriate fields based on selection
             if (fieldType === "media") {
                 linkFieldContainer.style.display = "block";
-            } else {
-                linkFieldContainer.style.display = "none";
-                document.getElementById('link').value = ""; // Clear value when hidden
+            } else if (fieldType === "reports") {
+                reportFileContainer.style.display = "block";
             }
         }
-        
-        // Function to convert image file to base64
+
+        // Function to convert file to base64
         function convertToBase64(file, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -160,45 +175,90 @@
         // Function to submit the form
         function submitForm() {
             const form = document.getElementById('resource-form');
+            const fieldType = document.getElementById('field_type').value;
             const mainImage = document.getElementById('main_image').files[0];
             const thumbnailImage = document.getElementById('thumbnail_image').files[0];
+            const reportFile = fieldType === "reports" ? document.getElementById('report_file').files[0] : null;
 
-            // Convert images to base64 before sending the request
-            if (mainImage) {
-                convertToBase64(mainImage, function (mainImageBase64) {
-                    const jsonData = new FormData(form);
-                    jsonData.delete("main_image");
-                    jsonData.delete("thumbnail_image");
-                    jsonData.append("main_image", mainImageBase64);
+            if (!mainImage) {
+                alert('Main image is required');
+                return;
+            }
 
-                    if (thumbnailImage) {
-                        convertToBase64(thumbnailImage, function (thumbnailImageBase64) {
-                            jsonData.append("thumbnail_image", thumbnailImageBase64);
+            // If field type is reports, check if report file is uploaded
+            if (fieldType === "reports" && !reportFile) {
+                alert('Please upload a report file');
+                return;
+            }
 
-                            // Send the data as JSON
-                            sendRequest(jsonData);
+            // Create an object to store our final data
+            const finalData = {};
+
+            // Copy all form fields
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'main_image' && key !== 'thumbnail_image' && key !== 'report_file') {
+                    finalData[key] = value;
+                }
+            }
+
+            // Process main image first
+            convertToBase64(mainImage, function (mainImageBase64) {
+                finalData['main_image'] = mainImageBase64;
+
+                // Process thumbnail if available
+                if (thumbnailImage) {
+                    convertToBase64(thumbnailImage, function (thumbnailBase64) {
+                        finalData['thumbnail_image'] = thumbnailBase64;
+
+                        // Process report file if needed
+                        if (fieldType === "reports" && reportFile) {
+                            convertToBase64(reportFile, function (reportBase64) {
+                                finalData['report_file'] = reportBase64;
+                                console.log("Report file added to request");
+                                sendRequest(finalData);
+                            });
+                        } else {
+                            sendRequest(finalData);
+                        }
+                    });
+                } else {
+                    // No thumbnail, check for report file
+                    if (fieldType === "reports" && reportFile) {
+                        convertToBase64(reportFile, function (reportBase64) {
+                            finalData['report_file'] = reportBase64;
+                            console.log("Report file added to request");
+                            sendRequest(finalData);
                         });
                     } else {
-                        sendRequest(jsonData);
+                        sendRequest(finalData);
                     }
-                });
-            }
+                }
+            });
         }
 
         // Function to send the request
-        function sendRequest(jsonData) {
+        function sendRequest(data) {
+            console.log("Sending data with keys:", Object.keys(data));
+            if (data.report_file) {
+                console.log("Report file is included in the request");
+            }
+
             fetch('https://samagrithtsk.onrender.com/api/resources', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(Object.fromEntries(jsonData)) // Send as JSON
+                body: JSON.stringify(data)
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.message === 'Resource created successfully') {
                         showAlert('Resource created successfully!', 'success');
                         document.getElementById('resource-form').reset();
+                        // Hide conditional fields after reset
+                        document.getElementById('link_field_container').style.display = "none";
+                        document.getElementById('report_file_container').style.display = "none";
                     } else {
                         alert('Error: ' + data.error);
                     }
@@ -228,6 +288,11 @@
                 setTimeout(() => alertDiv.remove(), 500);
             }, 5000);
         }
+
+        // Initialize the form display
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleAdditionalFields();
+        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
