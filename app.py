@@ -160,7 +160,38 @@ CMS_TEMPLATE = """
             text-align: justify;
             margin-top: 20px;
         }
+
+        .pdf-viewer-container {
+            width: 100%;
+            max-height: 80vh; /* Fit within the window height */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow-y: auto; /* Make the container scrollable */
+        }
+
+        .pdf-page {
+            margin-bottom: 20px; /* Add spacing between pages */
+            width: 100%; /* Ensure canvas fits the container width */
+        }
+
+        @media print {
+            .navbar, .btn {
+                display: none; /* Hide navbar and buttons when printing */
+            }
+
+            .content {
+                box-shadow: none;
+                border: none;
+            }
+
+            .pdf-viewer-container {
+                height: 100vh; /* Make PDF viewer full height for printing */
+            }
+        }
     </style>
+    <!-- Include PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
@@ -194,6 +225,30 @@ CMS_TEMPLATE = """
                     <p>{{ item.post_summary }}</p>
                     <div>{{ item.post_body | safe }}</div>
                 </div>
+
+                <!-- Handle Reports -->
+                {% if item.field_type == 'reports' and item.report_file %}
+                    <div class="mt-3">
+                        <h4>Report File</h4>
+                        <!-- PDF.js Viewer Container -->
+                        <div id="pdf-viewer-container" class="pdf-viewer-container">
+                            <!-- PDF pages will be rendered here -->
+                        </div>
+                        <!-- Download button for the PDF file -->
+                        <a href="{{ item.report_file }}" class="btn btn-success mt-3" download="report.pdf">
+                            Download Report
+                        </a>
+                        <!-- Print button -->
+                        <button class="btn btn-primary mt-3" onclick="printPage()">Print Report</button>
+                    </div>
+                {% endif %}
+
+                <!-- Handle Media -->
+                {% if item.field_type == 'media' and item.link %}
+                    <div class="mt-3">
+                        <a href="{{ item.link }}" class="btn btn-success" target="_blank">Link to Published Article</a>
+                    </div>
+                {% endif %}
             {% elif item_type == 'job' %}
                 <div class="metadata">
                     <p><strong>Title:</strong> {{ item.title }}</p>
@@ -204,23 +259,71 @@ CMS_TEMPLATE = """
                     <p>{{ item.description }}</p>
                 </div>
             {% endif %}
-            {% if item.field_type == 'reports' %}
-            <div class="mt-3">
-                <a href="#" 
-                class="btn btn-success" id="print" onclick="printPage()" download>Download</a>
-            </div>
-            {% elif item.field_type == 'media' %}
-                <div class="mt-3">
-                    <a href={{ item.link }} class="btn btn-success" target="_blank">Link to Published Article</a>
-                </div>
-            {% endif %}
         </div>
     </div>
+
     <script>
+        // Function to trigger the print dialog
         function printPage() {
-            document.getElementById('print').style.display = "none";
-            window.print(); // Triggers the print dialog
+            window.print();
         }
+
+        // Function to render PDF using PDF.js
+        async function renderPDF(base64Data) {
+            const pdfData = atob(base64Data.split(',')[1]); // Extract and decode base64 data
+            const pdfjsLib = window['pdfjs-dist/build/pdf'];
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+            const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+            const pdf = await loadingTask.promise;
+            const container = document.getElementById('pdf-viewer-container');
+
+            // Clear the container
+            container.innerHTML = '';
+
+            // Calculate the available width for the PDF
+            const containerWidth = container.clientWidth;
+
+            // Render all pages
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: 1 });
+
+                // Calculate the scale to fit the container width
+                const scale = containerWidth / viewport.width;
+                const scaledViewport = page.getViewport({ scale });
+
+                // Create a canvas for each page
+                const canvas = document.createElement('canvas');
+                canvas.className = 'pdf-page';
+                const context = canvas.getContext('2d');
+                canvas.height = scaledViewport.height;
+                canvas.width = scaledViewport.width;
+
+                // Append the canvas to the container
+                container.appendChild(canvas);
+
+                // Render the page on the canvas
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: scaledViewport
+                };
+                await page.render(renderContext).promise;
+            }
+        }
+
+        // Render the PDF if report_file exists
+        const reportFile = "{{ item.report_file }}";
+        if (reportFile && reportFile.startsWith('data:application/pdf;base64,')) {
+            renderPDF(reportFile);
+        }
+
+        // Adjust PDF size on window resize
+        window.addEventListener('resize', () => {
+            if (reportFile && reportFile.startsWith('data:application/pdf;base64,')) {
+                renderPDF(reportFile);
+            }
+        });
     </script>
 </body>
 </html>
@@ -251,9 +354,15 @@ def updatejob():
 def create_resource():
     try:
         data = request.json
+        print("Received data keys:", data.keys())  # Debug: Check what keys are in the request
+        
         main_image_b64 = data.get('main_image')
         thumbnail_image_b64 = data.get('thumbnail_image')
-
+        report_file_b64 = data.get('report_file')
+        
+        # Debug log to check report file
+        print("Report file present:", report_file_b64 is not None)
+        
         if not main_image_b64:
             return jsonify({'error': 'main_image is required'}), 400
 
@@ -262,12 +371,27 @@ def create_resource():
             main_image_b64 = main_image_b64.split(",")[1]
         if thumbnail_image_b64 and thumbnail_image_b64.startswith("data:image"):
             thumbnail_image_b64 = thumbnail_image_b64.split(",")[1]
+        
+        # Handle report file base64 data if present
+        report_file_data = None
+        if report_file_b64:
+            # Extract the actual base64 data if it has a prefix
+            if "," in report_file_b64:
+                report_file_data = report_file_b64.split(",", 1)[1]
+            else:
+                report_file_data = report_file_b64
             
+            print("Report file data processed successfully")  # Debug log
+
+        # Get other form fields
+        field_type = data.get('field_type')
+        
+        # Only process link if it exists in the data
         try:
             link = data.get('link')
         except:
             link = None
-        
+
         # Store the base64 strings in the database
         new_resource = Resource(
             name=data['name'],
@@ -280,17 +404,19 @@ def create_resource():
             color=data.get('color'),
             col_span=data.get('col_span', 1),
             topic=data.get('topic'),
-            field_type=data.get('field_type'),
-            link = link
+            field_type=field_type,
+            link=link,
+            report_file=report_file_data  # Store the report file data
         )
 
-        new_resource.cms_link = "https://samagrithtsk.onrender.com/" + new_resource.generate_cms_link()
+        new_resource.cms_link = "http://127.0.0.1:5000/" + new_resource.generate_cms_link()
         db.session.add(new_resource)
         db.session.commit()
 
         return jsonify({'message': 'Resource created successfully', 'resource': new_resource.to_dict()}), 201
 
     except Exception as e:
+        print("Error in create_resource:", str(e))  # Debug log for exception
         return jsonify({'error': str(e)}), 400
 
 # Routes for Jobs
@@ -375,7 +501,8 @@ def update_resource(id):
         # Update only provided fields
         updatable_fields = {
             'name', 'slug', 'post_body', 'post_summary', 'main_image', 'thumbnail_image',
-            'featured', 'color', 'col_span', 'service_category', 'normal_category', 'topic', 'link'
+            'featured', 'color', 'col_span', 'topic', 'field_type', 'cms_link', 'link',
+            'report_file'  # Only include fields that exist in the model
         }
 
         for key, value in data.items():
@@ -383,11 +510,12 @@ def update_resource(id):
                 setattr(resource, key, value)
 
         # Regenerate CMS link if needed
-        resource.cms_link = "https://samagrithtsk.onrender.com/" + resource.generate_cms_link()
+        resource.cms_link = "http://127.0.0.1:5000/" + resource.generate_cms_link()
 
         db.session.commit()
         return jsonify({'message': 'Resource updated successfully', 'resource': resource.to_dict()}), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
 
