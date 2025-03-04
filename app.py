@@ -358,8 +358,10 @@ def create_resource():
         
         main_image_b64 = data.get('main_image')
         thumbnail_image_b64 = data.get('thumbnail_image')
-        report_file_b64 = data.get('report_file')
-        
+        try:
+            report_file_b64 = data.get('report_file')
+        except:
+            report_file_b64 = None
         # Debug log to check report file
         print("Report file present:", report_file_b64 is not None)
         
@@ -382,6 +384,8 @@ def create_resource():
                 report_file_data = report_file_b64
             
             print("Report file data processed successfully")  # Debug log
+        else:
+            report_file_data = None
 
         # Get other form fields
         field_type = data.get('field_type')
