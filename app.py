@@ -40,6 +40,7 @@ class Resource(db.Model):
     cms_link = db.Column(db.String(500))
     field_type = db.Column(db.String(500))
     link = db.Column(db.String(500))
+    report_file = db.Column(db.Text)
 
     def generate_cms_link(self):
         return f"/cms/resource/{self.slug}"
@@ -60,7 +61,8 @@ class Resource(db.Model):
             'created_at': self.created_at.isoformat(),
             'cms_link': self.cms_link,
             'field_type': self.field_type,
-            'link': self.link
+            'link': self.link,
+            'report_file' : self.report_file
         }
 
 
