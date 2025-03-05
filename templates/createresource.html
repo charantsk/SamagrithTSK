@@ -100,10 +100,17 @@
                 </div>
             </div>
 
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <label for="normal_category">Topic</label>
-                    <input type="text" id="topic" name="topic" class="form-control">
+            <div class="col-md-6 mt-3">
+                <label for="topic">Topic</label><br>
+                <div id="topic-options">
+                    <label><input type="checkbox" value="Monitoring & Evaluation"> Monitoring & Evaluation</label><br>
+                    <label><input type="checkbox" value="Accounting & Legal Support"> Accounting & Legal Support</label><br>
+                    <label><input type="checkbox" value="Fund Raising"> Fund Raising</label><br>
+                    <label><input type="checkbox" value="Public Policy"> Public Policy</label><br>
+                    <label><input type="checkbox" value="Research & Development"> Research & Development</label><br>
+                    <label><input type="checkbox" value="Capacity Building"> Capacity Building</label><br>
+                    <label><input type="checkbox" value="Community Engagement & Partnership"> Community Engagement &
+                        Partnership</label><br>
                 </div>
             </div>
 
@@ -172,6 +179,12 @@
             };
         }
 
+        // Function to get selected values from checkboxes
+        function getSelectedValues() {
+            const checkboxes = document.querySelectorAll('#topic-options input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value).join(' | ');
+        }
+
         // Function to submit the form
         function submitForm() {
             const form = document.getElementById('resource-form');
@@ -185,16 +198,13 @@
                 return;
             }
 
-            // If field type is reports, check if report file is uploaded
             if (fieldType === "reports" && !reportFile) {
                 alert('Please upload a report file');
                 return;
             }
 
-            // Create an object to store our final data
             const finalData = {};
 
-            // Copy all form fields
             const formData = new FormData(form);
             for (let [key, value] of formData.entries()) {
                 if (key !== 'main_image' && key !== 'thumbnail_image' && key !== 'report_file') {
@@ -202,20 +212,19 @@
                 }
             }
 
-            // Process main image first
+            // Add the | separated topics to final data
+            finalData['topic'] = getSelectedValues();
+
             convertToBase64(mainImage, function (mainImageBase64) {
                 finalData['main_image'] = mainImageBase64;
 
-                // Process thumbnail if available
                 if (thumbnailImage) {
                     convertToBase64(thumbnailImage, function (thumbnailBase64) {
                         finalData['thumbnail_image'] = thumbnailBase64;
 
-                        // Process report file if needed
                         if (fieldType === "reports" && reportFile) {
                             convertToBase64(reportFile, function (reportBase64) {
                                 finalData['report_file'] = reportBase64;
-                                console.log("Report file added to request");
                                 sendRequest(finalData);
                             });
                         } else {
@@ -223,11 +232,9 @@
                         }
                     });
                 } else {
-                    // No thumbnail, check for report file
                     if (fieldType === "reports" && reportFile) {
                         convertToBase64(reportFile, function (reportBase64) {
                             finalData['report_file'] = reportBase64;
-                            console.log("Report file added to request");
                             sendRequest(finalData);
                         });
                     } else {
@@ -239,12 +246,7 @@
 
         // Function to send the request
         function sendRequest(data) {
-            console.log("Sending data with keys:", Object.keys(data));
-            if (data.report_file) {
-                console.log("Report file is included in the request");
-            }
-
-            fetch('https://samagrithtsk.onrender.com/api/resources', {
+            fetch('http://127.0.0.1:5000/api/resources', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -256,7 +258,6 @@
                     if (data.message === 'Resource created successfully') {
                         showAlert('Resource created successfully!', 'success');
                         document.getElementById('resource-form').reset();
-                        // Hide conditional fields after reset
                         document.getElementById('link_field_container').style.display = "none";
                         document.getElementById('report_file_container').style.display = "none";
                     } else {
@@ -274,14 +275,13 @@
             alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
             alertDiv.role = 'alert';
             alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+`;
 
-            alertContainer.innerHTML = ''; // Clear previous alerts
+            alertContainer.innerHTML = '';
             alertContainer.appendChild(alertDiv);
 
-            // Automatically remove alert after 5 seconds
             setTimeout(() => {
                 alertDiv.classList.remove('show');
                 alertDiv.classList.add('fade');
