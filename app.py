@@ -415,7 +415,7 @@ def create_resource():
             report_file=report_file_data  # Store the report file data
         )
 
-        new_resource.cms_link = "http://127.0.0.1:5000/" + new_resource.generate_cms_link()
+        new_resource.cms_link = "https://samagrithtsk.onrender.com/" + new_resource.generate_cms_link()
         db.session.add(new_resource)
         db.session.commit()
 
@@ -516,7 +516,7 @@ def update_resource(id):
                 setattr(resource, key, value)
 
         # Regenerate CMS link if needed
-        resource.cms_link = "http://127.0.0.1:5000/" + resource.generate_cms_link()
+        resource.cms_link = "https://samagrithtsk.onrender.com/" + resource.generate_cms_link()
 
         db.session.commit()
         return jsonify({'message': 'Resource updated successfully', 'resource': resource.to_dict()}), 200
