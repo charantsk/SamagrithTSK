@@ -102,15 +102,49 @@
 
             <div class="col-md-6 mt-3">
                 <label for="topic">Topic</label><br>
-                <div id="topic-options">
-                    <label><input type="checkbox" value="Monitoring & Evaluation"> Monitoring & Evaluation</label><br>
-                    <label><input type="checkbox" value="Accounting & Legal Support"> Accounting & Legal Support</label><br>
-                    <label><input type="checkbox" value="Fund Raising"> Fund Raising</label><br>
-                    <label><input type="checkbox" value="Public Policy"> Public Policy</label><br>
-                    <label><input type="checkbox" value="Research & Development"> Research & Development</label><br>
-                    <label><input type="checkbox" value="Capacity Building"> Capacity Building</label><br>
-                    <label><input type="checkbox" value="Community Engagement & Partnership"> Community Engagement &
-                        Partnership</label><br>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Topics
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="topic-options">
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" value="Monitoring & Evaluation"> Monitoring & Evaluation
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" value="Accounting & Legal Support"> Accounting & Legal Support
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" value="Fund Raising"> Fund Raising
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" value="Public Policy"> Public Policy
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" value="Research & Development"> Research & Development
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" value="Capacity Building"> Capacity Building
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item">
+                                <input type="checkbox" value="Community Engagement & Partnership"> Community Engagement &
+                                Partnership
+                            </label>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
