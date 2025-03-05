@@ -360,10 +360,8 @@ def create_resource():
         
         main_image_b64 = data.get('main_image')
         thumbnail_image_b64 = data.get('thumbnail_image')
-        try:
-            report_file_b64 = data.get('report_file')
-        except:
-            report_file_b64 = None
+        report_file_b64 = data.get('report_file')
+        
         # Debug log to check report file
         print("Report file present:", report_file_b64 is not None)
         
@@ -377,17 +375,7 @@ def create_resource():
             thumbnail_image_b64 = thumbnail_image_b64.split(",")[1]
         
         # Handle report file base64 data if present
-        report_file_data = None
-        if report_file_b64:
-            # Extract the actual base64 data if it has a prefix
-            if "," in report_file_b64:
-                report_file_data = report_file_b64.split(",", 1)[1]
-            else:
-                report_file_data = report_file_b64
-            
-            print("Report file data processed successfully")  # Debug log
-        else:
-            report_file_data = None
+        report_file_data = report_file_b64 if report_file_b64 else None
 
         # Get other form fields
         field_type = data.get('field_type')
