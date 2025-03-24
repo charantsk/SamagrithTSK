@@ -555,6 +555,14 @@ def delete_job(job_id):
     db.session.commit()
     return jsonify({'message': 'Job deleted successfully'})
 
+@app.route('/api/jobs/<int:job_id>', methods=['GET'])
+def get_job(job_id):
+    job = Job.query.get(job_id)
+    if not job:
+        return jsonify({'error': 'Job not found'}), 404
+    
+    return jsonify({'job': job.to_dict()}), 200
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
