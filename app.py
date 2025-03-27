@@ -258,7 +258,7 @@ CMS_TEMPLATE = """
                 </div>
                 
                 <div class="description">
-                    <p>{{ item.description }}</p>
+                    {{ item.description }}
                 </div>
             {% endif %}
         </div>
