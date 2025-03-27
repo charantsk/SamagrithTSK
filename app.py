@@ -9,7 +9,13 @@ from io import BytesIO
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+import markdown
 
+def convert_text(text):
+    html = markdown.markdown(text)
+    return html
+
+app.jinja_env.filters['convert_text'] = convert_text 
 
 app = Flask(__name__)
 CORS(app)
@@ -258,7 +264,7 @@ CMS_TEMPLATE = """
                 </div>
                 
                 <div class="description">
-                    {{ item.description | safe }}
+                    {{ item.description | convert_text | safe }}
                 </div>
             {% endif %}
         </div>
