@@ -10,10 +10,9 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import markdown
+from google import genai
 
-def convert_text(text):
-    html = markdown.markdown(text)
-    return html
+client = genai.Client(api_key="AIzaSyAAjZg_gz9GckLiube1TxQ7yHI36Hi2J44")
 
 app.jinja_env.filters['convert_text'] = convert_text 
 
@@ -95,7 +94,14 @@ class Job(db.Model):
             'cms_link': self.cms_link
         }
 
+def convert_text(text):
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents="Can u convert this text in html tags with some inline styling : " + text + "just give me the code inside the body and no description of code should be sent and don't give the body tag",
+    )
 
+    return response
+    
 
 # Basic CMS template
 CMS_TEMPLATE = """
