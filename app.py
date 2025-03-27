@@ -258,7 +258,7 @@ CMS_TEMPLATE = """
                 </div>
                 
                 <div class="description">
-                    {{ item.description }}
+                    {{ item.description | safe }}
                 </div>
             {% endif %}
         </div>
