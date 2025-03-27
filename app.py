@@ -9,6 +9,8 @@ from io import BytesIO
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+import markdown
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +23,37 @@ THUMBNAIL_SIZE = (200, 200)  # Define thumbnail size
 
 # Ensure the static image folder exists
 os.makedirs(STATIC_FOLDER, exist_ok=True)
+
+def convert_html(value):
+    print("Value:", value)
+
+    # Check if any line starts with Markdown elements
+    markdown_patterns = [
+        r"^# ",       # Heading 1-6 (#, ##, ###, etc.)
+        r"^- ",       # Unordered list (- item)
+        r"^\* ",      # Unordered list (* item)
+        r"^\d+\. ",   # Ordered list (1., 2., 3., etc.)
+        r"^> ",       # Blockquote (> quote)
+        r"^```",      # Code block (```)
+        r"^\*{1,2}[^ ]",  # Bold/italic without spaces (*bold*, **bold**)
+        r"^_+[^ ]",       # Underscore-based formatting (_italic_, __bold__)
+    ]
+
+    if any(re.search(pattern, value, re.MULTILINE) for pattern in markdown_patterns):
+        return markdown.markdown(value)
+
+    # If no Markdown syntax at the start of lines, format sections properly
+    formatted_value = ""
+    paragraphs = value.strip().split("\n\n")  # Split sections by double newlines
+
+    for paragraph in paragraphs:
+        lines = paragraph.split("\n")  # Split within sections
+        formatted_value += "<p>" + "<br>".join(lines) + "</p>\n"
+
+    return formatted_value.strip()
+
+# Register the filter
+app.jinja_env.filters['convert_html'] = convert_html
 
 # Resources Table
 class Resource(db.Model):
@@ -256,7 +289,7 @@ CMS_TEMPLATE = """
                 </div>
                 
                 <div class="description">
-                    {{ item.description }}
+                    <p>{{ item.description | convert_html | safe }}</p>
                 </div>
             {% endif %}
         </div>
