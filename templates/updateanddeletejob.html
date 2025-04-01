@@ -127,7 +127,7 @@
                             <td>${job.title}</td>
                             <td>${job.description || ''}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick="openUpdateModal(${job.id}, '${job.name}', '${job.title}', '${job.description}')">Update</button>
+                                <button class="btn btn-warning btn-sm" onclick="openUpdateModal(${job.id}, \`${job.name}\`, \`${job.title}\`, \`${job.description}\`)">Update</button>
                                 <button class="btn btn-danger btn-sm" onclick="openDeleteModal(${job.id})">Delete</button>
                             </td>
                         </tr>`;
@@ -158,7 +158,8 @@
                 .then(response => response.json())
                 .then(() => {
                     fetchJobs();
-                    bootstrap.Modal.getInstance(document.getElementById('updateJobModal')).hide();
+                    const updateModal = bootstrap.Modal.getInstance(document.getElementById('updateJobModal'));
+                    if (updateModal) updateModal.hide();
                 });
         }
 
@@ -174,7 +175,8 @@
 
         function openDeleteModal(jobId) {
             document.getElementById('deleteJobId').value = jobId;
-            new bootstrap.Modal(document.getElementById('deleteJobModal')).show();
+            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteJobModal'));
+            if (deleteModal) deleteModal.hide();
         }
 
         function confirmDeleteJob() {
