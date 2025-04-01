@@ -191,29 +191,29 @@
                     const truncatedPostBody = resource.post_body ? (resource.post_body.length > 100 ? resource.post_body.substring(0, 100) + '...' : resource.post_body) : '';
 
                     // Create a sanitized version of the data for passing to editResource
-                    const safeSlug = resource.slug ? resource.slug.replace(/'/g, "\\'") : '';
-                    const safePostBody = truncatedPostBody.replace(/'/g, "\\'");
-                    const safePostSummary = resource.post_summary ? resource.post_summary.replace(/'/g, "\\'") : '';
-                    const safeMainImage = resource.main_image ? resource.main_image.replace(/'/g, "\\'") : '';
-                    const safeThumbnailImage = resource.thumbnail_image ? resource.thumbnail_image.replace(/'/g, "\\'") : '';
-                    const safeColor = resource.color ? resource.color.replace(/'/g, "\\'") : '';
-                    const safeTopic = resource.topic ? resource.topic.replace(/'/g, "\\'") : '';
-                    const safeFieldType = resource.field_type ? resource.field_type.replace(/'/g, "\\'") : '';
-                    const safeCmsLink = resource.cms_link ? resource.cms_link.replace(/'/g, "\\'") : '';
-                    const safeLink = resource.link ? resource.link.replace(/'/g, "\\'") : '';
+                    const safeSlug = escapeHtml(resource.slug || '');
+                    const safePostBody = escapeHtml(truncatedPostBody);
+                    const safePostSummary = escapeHtml(resource.post_summary || '');
+                    const safeMainImage = escapeHtml(resource.main_image || '');
+                    const safeThumbnailImage = escapeHtml(resource.thumbnail_image || '');
+                    const safeColor = escapeHtml(resource.color || '');
+                    const safeTopic = escapeHtml(resource.topic || '');
+                    const safeFieldType = escapeHtml(resource.field_type || '');
+                    const safeCmsLink = escapeHtml(resource.cms_link || '');
+                    const safeLink = escapeHtml(resource.link || '');
 
                     // Get report file name if it exists
                     const hasReportFile = resource.report_file ? true : false;
                     const reportFileName = resource.report_file_name || `report-${resource.id}`;
-                    const safeReportFileName = reportFileName.replace(/'/g, "\\'");
+                    const safeReportFileName = escapeHtml(reportFileName);
 
                     // Safety check for name
-                    const safeName = resource.name ? resource.name.replace(/'/g, "\\'") : 'N/A';
+                    const safeName = escapeHtml(resource.name || 'N/A');
 
                     row.innerHTML = `
                         <td>${resource.name || 'N/A'}</td>
                         <td>
-                            <button class="btn btn-warning btn-sm" onclick="editResource(${resource.id}, '${safeName}', '${safeSlug}', '${encodeURIComponent(safePostBody)}', '${safePostSummary}', '${safeMainImage}', '${safeThumbnailImage}', ${resource.featured || false}, '${safeColor}', ${resource.col_span || 1}, '${safeTopic}', '${safeFieldType}', '${safeCmsLink}', '${safeLink}', ${hasReportFile}, '${safeReportFileName}')">Edit</button>
+                            <button class="btn btn-warning btn-sm" onclick="editResource(${resource.id}, '${safeName}', '${safeSlug}', '${safePostBody}', '${safePostSummary}', '${safeMainImage}', '${safeThumbnailImage}', ${resource.featured || false}, '${safeColor}', ${resource.col_span || 1}, '${safeTopic}', '${safeFieldType}', '${safeCmsLink}', '${safeLink}', ${hasReportFile}, '${safeReportFileName}')">Edit</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteResource('${safeName}')">Delete</button>
                         </td>
                     `;
@@ -222,6 +222,19 @@
             } catch (error) {
                 console.error("Error fetching resources:", error);
             }
+        }
+
+        // Helper function to escape HTML and special characters
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, '\\n')
+                .replace(/\r/g, '\\r')
+                .replace(/\t/g, '\\t');
         }
 
         function toggleEditFields() {
@@ -243,20 +256,20 @@
 
         function editResource(id, name, slug, post_body, post_summary, main_image, thumbnail_image, featured, color, col_span, topic, field_type, cms_link, link, hasReportFile, reportFileName) {
             document.getElementById('editId').value = id;
-            document.getElementById('editName').value = name || '';
-            document.getElementById('editSlug').value = slug || '';
-            document.getElementById('editPostBody').value = decodeURIComponent(post_body) || '';
-            document.getElementById('editPostSummary').value = post_summary || '';
-            document.getElementById('editMainImage').value = main_image || '';
-            document.getElementById('editThumbnailImage').value = thumbnail_image || '';
+            document.getElementById('editName').value = decodeHtml(name) || '';
+            document.getElementById('editSlug').value = decodeHtml(slug) || '';
+            document.getElementById('editPostBody').value = decodeHtml(post_body) || '';
+            document.getElementById('editPostSummary').value = decodeHtml(post_summary) || '';
+            document.getElementById('editMainImage').value = decodeHtml(main_image) || '';
+            document.getElementById('editThumbnailImage').value = decodeHtml(thumbnail_image) || '';
             document.getElementById('editFeatured').checked = featured || false;
-            document.getElementById('editColor').value = color || '';
+            document.getElementById('editColor').value = decodeHtml(color) || '';
             document.getElementById('editColSpan').value = col_span || 1;
-            document.getElementById('editTopic').value = topic || '';
-            document.getElementById('editFieldType').value = field_type || 'diary';
-            document.getElementById('editCmsLink').value = cms_link || '';
-            document.getElementById('editMediaLink').value = link || '';
-            document.getElementById('editReportFileName').value = reportFileName || '';
+            document.getElementById('editTopic').value = decodeHtml(topic) || '';
+            document.getElementById('editFieldType').value = decodeHtml(field_type) || 'diary';
+            document.getElementById('editCmsLink').value = decodeHtml(cms_link) || '';
+            document.getElementById('editMediaLink').value = decodeHtml(link) || '';
+            document.getElementById('editReportFileName').value = decodeHtml(reportFileName) || '';
 
             // Update report file status with file name if it exists
             if (hasReportFile) {
@@ -266,7 +279,7 @@
                             <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
                         </svg>
                         <div>
-                            Current file: <strong>${reportFileName}</strong>
+                            Current file: <strong>${decodeHtml(reportFileName)}</strong>
                         </div>
                     </div>`;
             } else {
@@ -285,6 +298,19 @@
 
             var editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
+        }
+
+        // Helper function to decode HTML entities
+        function decodeHtml(html) {
+            if (!html) return '';
+            const txt = document.createElement('textarea');
+            txt.innerHTML = html
+                .replace(/\\'/g, "'")
+                .replace(/\\"/g, '"')
+                .replace(/\\n/g, '\n')
+                .replace(/\\r/g, '\r')
+                .replace(/\\t/g, '\t');
+            return txt.value;
         }
 
         // Function to convert file to base64
