@@ -125,13 +125,17 @@
                     const tbody = document.getElementById('jobs-table-body');
                     tbody.innerHTML = '';
                     data.jobs.forEach(job => {
+                        const name = job.name.replace(/["'\\]/g, "\\$&");
+                        const title = job.title.replace(/["'\\]/g, "\\$&");
+                        const description = job.description ? job.description.replace(/["'\\]/g, "\\$&") : '';
+
                         const row = `<tr>
                             <td>${job.id}</td>
-                            <td>${job.name}</td>
-                            <td>${job.title}</td>
-                            <td>${job.description || ''}</td>
+                            <td>${name}</td>
+                            <td>${title}</td>
+                            <td>${description}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick="openUpdateModal(${job.id}, '${job.name.replace(/'/g, "\\'")}', '${job.title.replace(/'/g, "\\'")}', '${job.description ? job.description.replace(/'/g, "\\'") : ''}')">Update</button>
+                                <button class="btn btn-warning btn-sm" onclick="openUpdateModal(${job.id}, '${name}', '${title}', '${description}')">Update</button>
                                 <button class="btn btn-danger btn-sm" onclick="openDeleteModal(${job.id})">Delete</button>
                             </td>
                         </tr>`;
