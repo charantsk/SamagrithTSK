@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template_string, render_template
+from flask import Flask, request, jsonify, render_template_string, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import desc
@@ -13,6 +13,7 @@ import markdown
 import re
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24).hex()
 CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -363,8 +364,27 @@ CMS_TEMPLATE = """
 """
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def home():
+    if 'user' in session:
+        return render_template('index.html')  # Show main page if logged in
+    return redirect(url_for('login'))  # Redirect to login if not logged in
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == dummy_user['username'] and password == dummy_user['password']:
+            session['user'] = username
+            return redirect(url_for('home'))
+        else:
+            return "Invalid credentials, please try again."
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('login'))
 
 @app.route('/createresource')
 def createresource():
