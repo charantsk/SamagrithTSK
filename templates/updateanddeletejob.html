@@ -158,8 +158,7 @@
                 .then(response => response.json())
                 .then(() => {
                     fetchJobs();
-                    const updateModal = bootstrap.Modal.getInstance(document.getElementById('updateJobModal'));
-                    if (updateModal) updateModal.hide();
+                    bootstrap.Modal.getInstance(document.getElementById('updateJobModal')).hide();
                 });
         }
 
@@ -175,8 +174,7 @@
 
         function openDeleteModal(jobId) {
             document.getElementById('deleteJobId').value = jobId;
-            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteJobModal'));
-            if (deleteModal) deleteModal.hide();
+            new bootstrap.Modal(document.getElementById('deleteJobModal')).show();
         }
 
         function confirmDeleteJob() {
