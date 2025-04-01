@@ -21,6 +21,7 @@
             left: 0;
             right: 0;
             z-index: 1000;
+            padding: 10px 20px;
         }
 
         .navbar a {
@@ -34,103 +35,58 @@
             height: 80px;
         }
 
-        .container {
-            margin-top: 30px;
+        .login-container {
             max-width: 400px;
-            background-color: #fff;
+            margin: 100px auto;
+            background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
-            margin-bottom: 30px;
         }
 
-        .form-control {
-            margin-bottom: 15px;
-        }
-
-        .btn {
+        .btn-green {
+            background-color: #005c38;
+            color: white;
+            border: 2px solid #00472a;
             width: 100%;
         }
 
-        .alert-container {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1050;
-            width: 80%;
-            max-width: 500px;
+        .btn-green:hover {
+            background-color: white;
+            color: #00472a;
+            border: 2px solid #00472a;
         }
     </style>
 </head>
 
 <body>
+
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <div class="logo d-flex align-items-center">
-                <img src="./static/images/samagrith-logo-in-nav-bar-p-500.png" width="120" alt="Logo">
+                <img src="./static/images/samagrith-logo-in-nav-bar-p-500.png" width="120" alt="Logo"
+                    class="logo-image">
             </div>
         </div>
     </nav>
 
-    <div class="container">
+    <!-- Login Form -->
+    <div class="login-container">
         <h2>Login</h2>
-        <!-- Alert Container -->
-        <div id="alert-container" class="alert-container"></div>
-
-        <form method="POST" id="login-form">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+        <form method="POST" action="/login">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" id="username" name="username" class="form-control" required>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-success">Login</button>
+            <button type="submit" class="btn btn-green">Login</button>
         </form>
     </div>
-
-    <script>
-        document.getElementById('login-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            // Dummy credentials check
-            if (username === 'admin' && password === 'admin123') {
-                showAlert('Login successful!', 'success');
-            } else {
-                showAlert('Invalid username or password!', 'danger');
-            }
-        });
-
-        function showAlert(message, type) {
-            const alertContainer = document.getElementById('alert-container');
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.role = 'alert';
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-
-            alertContainer.innerHTML = ''; // Clear previous alerts
-            alertContainer.appendChild(alertDiv);
-
-            // Automatically remove alert after 5 seconds
-            setTimeout(() => {
-                alertDiv.classList.remove('show');
-                alertDiv.classList.add('fade');
-                setTimeout(() => alertDiv.remove(), 500);
-            }, 5000);
-        }
-    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
