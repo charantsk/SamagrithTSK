@@ -256,7 +256,7 @@ CMS_TEMPLATE = """
 
                 <div class="description">
                     <p>{{ item.post_summary }}</p>
-                    <div>{{ item.post_body | safe }}</div>
+                    <div>{{ item.post_body | convert_html | safe }}</div>
                 </div>
 
                 <!-- Handle Reports -->
