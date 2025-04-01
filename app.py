@@ -363,6 +363,11 @@ CMS_TEMPLATE = """
 </html>
 """
 
+dummy_user = {
+    "username": "merlynp",
+    "password": "merlynp123"
+}
+
 @app.route('/')
 def home():
     if 'user' in session:
