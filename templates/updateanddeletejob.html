@@ -12,7 +12,6 @@
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
             padding-top: 100px;
-            margin-top: 50px;
         }
 
         img {
@@ -40,8 +39,7 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <div class="logo d-flex align-items-center">
-                <img src="./static/images/samagrith-logo-in-nav-bar-p-500.png" width="80" alt="Logo"
-                    class="logo-image">
+                <img src="./static/images/samagrith-logo-in-nav-bar-p-500.png" width="80" alt="Logo" class="logo-image">
             </div>
         </div>
     </nav>
@@ -118,31 +116,22 @@
             fetch('https://samagrithtsk.onrender.com/api/jobs?page=1&per_page=10')
                 .then(response => response.json())
                 .then(data => {
-                    if (!data || !data.jobs || !Array.isArray(data.jobs)) {
-                        console.error("Invalid API response", data);
-                        return;
-                    }
                     const tbody = document.getElementById('jobs-table-body');
                     tbody.innerHTML = '';
                     data.jobs.forEach(job => {
-                        const name = job.name.replace(/["'\\]/g, "\\$&");
-                        const title = job.title.replace(/["'\\]/g, "\\$&");
-                        const description = job.description ? job.description.replace(/["'\\]/g, "\\$&") : '';
-
                         const row = `<tr>
                             <td>${job.id}</td>
-                            <td>${name}</td>
-                            <td>${title}</td>
-                            <td>${description}</td>
+                            <td>${job.name}</td>
+                            <td>${job.title}</td>
+                            <td>${job.description || ''}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick="openUpdateModal(${job.id}, '${name}', '${title}', '${description}')">Update</button>
+                                <button class="btn btn-warning btn-sm" onclick="openUpdateModal(${job.id}, \`${job.name}\`, \`${job.title}\`, \`${job.description}\`)">Update</button>
                                 <button class="btn btn-danger btn-sm" onclick="openDeleteModal(${job.id})">Delete</button>
                             </td>
                         </tr>`;
                         tbody.innerHTML += row;
                     });
-                })
-                .catch(error => console.error("Fetch error:", error));
+                });
         }
 
         function openUpdateModal(id, name, title, description) {
@@ -167,7 +156,7 @@
                 .then(response => response.json())
                 .then(() => {
                     fetchJobs();
-                    bootstrap.Modal.getInstance(document.getElementById('updateJobModal'))?.hide();
+                    bootstrap.Modal.getInstance(document.getElementById('updateJobModal')).hide();
                 });
         }
 
@@ -184,7 +173,7 @@
                 .then(response => response.json())
                 .then(() => {
                     fetchJobs();
-                    bootstrap.Modal.getInstance(document.getElementById('deleteJobModal'))?.hide();
+                    bootstrap.Modal.getInstance(document.getElementById('deleteJobModal')).hide();
                 });
         }
 
