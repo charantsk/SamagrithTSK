@@ -137,6 +137,7 @@ CMS_TEMPLATE = """
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
             padding-top: 100px;
+            margin: 0;
         }
 
         .navbar {
@@ -160,12 +161,11 @@ CMS_TEMPLATE = """
         }
 
         .content {
-            max-width: 100%;
-            margin: 20px;
+            width: 100%;
             background: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .header h1 {
@@ -250,9 +250,12 @@ CMS_TEMPLATE = """
                 width: 40px;
                 height: 40px;
             }
+
+            .content {
+                padding: 15px;
+            }
         }
     </style>
-    <!-- Include PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
@@ -270,18 +273,17 @@ CMS_TEMPLATE = """
                     <li class="nav-item">
                         <a class="nav-link text-white" href="#">Home</a>
                     </li>
-                    <!-- Add more nav-links if needed -->
                 </ul>
             </div>
         </div>
     </nav>
-    
-    <div class="container mt-5">
+
+    <div class="container-fluid p-0">
         <div class="content">
             <div class="header">
                 <h1>{{ item.name }}</h1>
             </div>
-            
+
             {% if item_type == 'resource' %}
                 <div class="metadata">
                     <p><strong>Topic:</strong> {{ item.topic }}</p>
@@ -304,9 +306,7 @@ CMS_TEMPLATE = """
                     <div class="mt-3">
                         <h4>Report File</h4>
                         <div id="pdf-viewer-container" class="pdf-viewer-container"></div>
-                        <a href="{{ item.report_file }}" class="btn btn-success mt-3" download="report.pdf">
-                            Download Report
-                        </a>
+                        <a href="{{ item.report_file }}" class="btn btn-success mt-3" download="report.pdf">Download Report</a>
                         <button class="btn btn-primary mt-3" onclick="printPage()">Print Report</button>
                     </div>
                 {% endif %}
@@ -321,7 +321,7 @@ CMS_TEMPLATE = """
                     <p><strong>Title:</strong> {{ item.title }}</p>
                     <p><strong>Posted On:</strong> {{ item.created_at }}</p>
                 </div>
-                
+
                 <div class="description">
                     <p>{{ item.description | convert_html | safe }}</p>
                 </div>
@@ -379,7 +379,6 @@ CMS_TEMPLATE = """
         });
     </script>
 
-    <!-- Bootstrap JS Bundle (for navbar toggler) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
