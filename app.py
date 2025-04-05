@@ -129,6 +129,7 @@ CMS_TEMPLATE = """
 <html>
 <head>
     <title>{{ item.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -146,15 +147,16 @@ CMS_TEMPLATE = """
             right: 0;
             z-index: 1000;
             padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        }
+
+        .navbar-brand span {
+            font-weight: 600;
+            font-size: 20px;
         }
 
         .navbar a {
             color: #fff;
             text-decoration: none;
-            margin: 0 15px;
         }
 
         .content {
@@ -184,7 +186,7 @@ CMS_TEMPLATE = """
             margin-top: 20px;
         }
 
-        img {
+        .image-container img {
             max-width: 100%;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -197,21 +199,24 @@ CMS_TEMPLATE = """
 
         .pdf-viewer-container {
             width: 100%;
-            max-height: 80vh; /* Fit within the window height */
+            max-height: 80vh;
             border: 1px solid #ddd;
             border-radius: 8px;
             margin-top: 20px;
-            overflow-y: auto; /* Make the container scrollable */
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         .pdf-page {
-            margin-bottom: 20px; /* Add spacing between pages */
-            width: 100%; /* Ensure canvas fits the container width */
+            margin-bottom: 20px;
+            width: 100%;
+            height: auto;
         }
 
         @media print {
             .navbar, .btn {
-                display: none; /* Hide navbar and buttons when printing */
+                display: none;
             }
 
             .content {
@@ -220,7 +225,30 @@ CMS_TEMPLATE = """
             }
 
             .pdf-viewer-container {
-                height: 100vh; /* Make PDF viewer full height for printing */
+                height: 100vh;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .metadata p {
+                font-size: 13px;
+            }
+
+            .description {
+                font-size: 14px;
+            }
+
+            h1, h4 {
+                font-size: 20px;
+            }
+
+            .navbar-brand span {
+                font-size: 16px;
+            }
+
+            .navbar-brand img {
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
@@ -228,10 +256,22 @@ CMS_TEMPLATE = """
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <div class="logo d-flex align-items-center">
-                <img src="{{ url_for('static', filename='images/samagrith-logo-in-nav-bar-p-500.png') }}" width="80" height="80" alt="Main Image">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="{{ url_for('static', filename='images/samagrith-logo-in-nav-bar-p-500.png') }}" width="50" height="50" alt="Main Image">
+                <span class="ms-2 text-white">Samagrith</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">Home</a>
+                    </li>
+                    <!-- Add more nav-links if needed -->
+                </ul>
             </div>
         </div>
     </nav>
@@ -251,7 +291,7 @@ CMS_TEMPLATE = """
 
                 <div class="image-container">
                     {% if item.main_image %}
-                        <img src="data:image/png;base64,{{ item.main_image }}" alt="Main Image">
+                        <img src="data:image/png;base64,{{ item.main_image }}" alt="Main Image" class="img-fluid">
                     {% endif %}
                 </div>
 
@@ -260,24 +300,17 @@ CMS_TEMPLATE = """
                     <div>{{ item.post_body | convert_html | safe }}</div>
                 </div>
 
-                <!-- Handle Reports -->
                 {% if item.field_type == 'reports' and item.report_file %}
                     <div class="mt-3">
                         <h4>Report File</h4>
-                        <!-- PDF.js Viewer Container -->
-                        <div id="pdf-viewer-container" class="pdf-viewer-container">
-                            <!-- PDF pages will be rendered here -->
-                        </div>
-                        <!-- Download button for the PDF file -->
+                        <div id="pdf-viewer-container" class="pdf-viewer-container"></div>
                         <a href="{{ item.report_file }}" class="btn btn-success mt-3" download="report.pdf">
                             Download Report
                         </a>
-                        <!-- Print button -->
                         <button class="btn btn-primary mt-3" onclick="printPage()">Print Report</button>
                     </div>
                 {% endif %}
 
-                <!-- Handle Media -->
                 {% if item.field_type == 'media' and item.link %}
                     <div class="mt-3">
                         <a href="{{ item.link }}" class="btn btn-success" target="_blank">Link to Published Article</a>
@@ -297,47 +330,35 @@ CMS_TEMPLATE = """
     </div>
 
     <script>
-        // Function to trigger the print dialog
         function printPage() {
             window.print();
         }
 
-        // Function to render PDF using PDF.js
         async function renderPDF(base64Data) {
-            const pdfData = atob(base64Data.split(',')[1]); // Extract and decode base64 data
+            const pdfData = atob(base64Data.split(',')[1]);
             const pdfjsLib = window['pdfjs-dist/build/pdf'];
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             const loadingTask = pdfjsLib.getDocument({ data: pdfData });
             const pdf = await loadingTask.promise;
             const container = document.getElementById('pdf-viewer-container');
-
-            // Clear the container
             container.innerHTML = '';
-
-            // Calculate the available width for the PDF
             const containerWidth = container.clientWidth;
 
-            // Render all pages
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 const page = await pdf.getPage(pageNum);
                 const viewport = page.getViewport({ scale: 1 });
-
-                // Calculate the scale to fit the container width
                 const scale = containerWidth / viewport.width;
                 const scaledViewport = page.getViewport({ scale });
 
-                // Create a canvas for each page
                 const canvas = document.createElement('canvas');
                 canvas.className = 'pdf-page';
                 const context = canvas.getContext('2d');
                 canvas.height = scaledViewport.height;
                 canvas.width = scaledViewport.width;
 
-                // Append the canvas to the container
                 container.appendChild(canvas);
 
-                // Render the page on the canvas
                 const renderContext = {
                     canvasContext: context,
                     viewport: scaledViewport
@@ -346,19 +367,20 @@ CMS_TEMPLATE = """
             }
         }
 
-        // Render the PDF if report_file exists
         const reportFile = "{{ item.report_file }}";
         if (reportFile && reportFile.startsWith('data:application/pdf;base64,')) {
             renderPDF(reportFile);
         }
 
-        // Adjust PDF size on window resize
         window.addEventListener('resize', () => {
             if (reportFile && reportFile.startsWith('data:application/pdf;base64,')) {
                 renderPDF(reportFile);
             }
         });
     </script>
+
+    <!-- Bootstrap JS Bundle (for navbar toggler) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 """
