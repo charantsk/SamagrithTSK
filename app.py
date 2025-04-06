@@ -262,7 +262,9 @@ CMS_TEMPLATE = """
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="{{ url_for('static', filename='images/samagrith-logo-in-nav-bar-p-500.png') }}" width="50" height="50" alt="Main Image">
+                <a href="https://samagrith.com" target="_blank">
+                  <img src="{{ url_for('static', filename='images/samagrith-logo-in-nav-bar-p-500.png') }}" width="50" height="50" alt="Main Image">
+                </a>
                 <span class="ms-2 text-white">Samagrith</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
@@ -287,7 +289,7 @@ CMS_TEMPLATE = """
             {% if item_type == 'resource' %}
                 <div class="metadata">
                     <p><strong>Topic:</strong> {{ item.topic }}</p>
-                    <p><strong>Created At:</strong> {{ item.created_at }}</p>
+                    <p><strong>Created At:</strong> {{ item.created_at.strftime('%d/%m/%Y') }}</p>
                     <p><strong>Field Type:</strong> {{ item.field_type }}</p>
                 </div>
 
@@ -319,7 +321,7 @@ CMS_TEMPLATE = """
             {% elif item_type == 'job' %}
                 <div class="metadata">
                     <p><strong>Title:</strong> {{ item.title }}</p>
-                    <p><strong>Posted On:</strong> {{ item.created_at }}</p>
+                    <p><strong>Posted On:</strong> {{ item.created_at.strftime('%d/%m/%Y') }}</p>
                 </div>
 
                 <div class="description">
